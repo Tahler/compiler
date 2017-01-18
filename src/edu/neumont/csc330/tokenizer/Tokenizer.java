@@ -581,8 +581,25 @@ public class Tokenizer {
                 shouldTerminate = currentState != State._PARTIAL_STRING_LITERAL;
                 break;
             default:
-                // TODO: probable bug: normal chars following an equals (e.g. "String def; String abc =def;")
-                shouldTerminate = false;
+                // other characters will start next token if an ending special char state
+                shouldTerminate = currentState == State._EQUALS
+                        || currentState == State._EQUALS_EQUALS
+                        || currentState == State._LESS_THAN
+                        || currentState == State._LESS_THAN_EQUAL
+                        || currentState == State._GREATER_THAN
+                        || currentState == State._GREATER_THAN_EQUAL
+                        || currentState == State._PLUS
+                        || currentState == State._MINUS
+                        || currentState == State._ASTERISK
+                        || currentState == State._FORWARD_SLASH
+                        || currentState == State._COMMA
+                        || currentState == State._SEMICOLON
+                        || currentState == State._OPEN_CURLY
+                        || currentState == State._CLOSE_CURLY
+                        || currentState == State._OPEN_PARENTHESIS
+                        || currentState == State._CLOSE_PARENTHESIS
+                        || currentState == State._OPEN_SQUARE
+                        || currentState == State._CLOSE_SQUARE;
                 break;
         }
         return shouldTerminate;
