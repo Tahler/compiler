@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+
 public class Tokenizer {
     private static final Character[] ARITHMETIC_OPERATORS = new Character[] {
             '+',
@@ -42,112 +43,325 @@ public class Tokenizer {
         List<Token> tokens = new ArrayList<>();
         State currentState = State._IDLE;
         int lineNumber = 0, tokenColumnStart = 0, column = -1;
+        StringBuilder chars = new StringBuilder();
         while (iterator.hasNext()) {
+            column++;
             Character nextChar = iterator.next();
             if (isStartOfNextToken(currentState, nextChar)) {
                 // flush current -- move to idle
+                currentState = State._IDLE;
             }
 
             switch (currentState) {
                 case D:
+                    if (nextChar == 'o') {
+                        currentState = State.DO;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case DO:
+                    if (nextChar == 'u') {
+                        currentState = State.DOU;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case DOU:
+                    if (nextChar == 'b') {
+                        currentState = State.DOUB;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case DOUB:
+                    if (nextChar == 'l') {
+                        currentState = State.DOUBL;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case DOUBL:
+                    if (nextChar == 'e') {
+                        currentState = State.DOUBLE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case DOUBLE:
+                    currentState = State._IDENTIFIER;
                     break;
                 case E:
+                    if (nextChar == 'l') {
+                        currentState = State.EL;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case EL:
+                    if (nextChar == 's') {
+                        currentState = State.ELS;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case ELS:
+                    if (nextChar == 'e') {
+                        currentState = State.ELSE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case ELSE:
+                    currentState = State._IDENTIFIER;
                     break;
                 case F:
+                    if (nextChar == 'o') {
+                        currentState = State.FO;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case FO:
+                    if (nextChar == 'r') {
+                        currentState = State.FOR;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case FOR:
+                    currentState = State._IDENTIFIER;
                     break;
                 case I:
+                    if (nextChar == 'f') {
+                        currentState = State.IF;
+                    } else if (nextChar == 'n') {
+                        currentState = State.IN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case IF:
+                    currentState = State._IDENTIFIER;
                     break;
                 case IN:
+                    if (nextChar == 't') {
+                        currentState = State.INT;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case INT:
+                    currentState = State._IDENTIFIER;
                     break;
                 case P:
+                    if (nextChar == 'u') {
+                        currentState = State.PU;
+                    } else if (nextChar == 'r') {
+                        currentState = State.PR;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PU:
+                    if (nextChar == 'b') {
+                        currentState = State.PUB;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PUB:
+                    if (nextChar == 'l') {
+                        currentState = State.PUBL;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PUBL:
+                    if (nextChar == 'i') {
+                        currentState = State.PUBLI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PUBLI:
+                    if (nextChar == 'c') {
+                        currentState = State.PUBLIC;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PUBLIC:
+                    currentState = State._IDENTIFIER;
                     break;
                 case PR:
+                    if (nextChar == 'i') {
+                        currentState = State.PRI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PRI:
+                    if (nextChar == 'v') {
+                        currentState = State.PRI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PRIV:
+                    if (nextChar == 'a') {
+                        currentState = State.PRIVA;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PRIVA:
+                    if (nextChar == 't') {
+                        currentState = State.PRIVAT;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PRIVAT:
+                    if (nextChar == 'e') {
+                        currentState = State.PRIVATE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case PRIVATE:
+                    currentState = State._IDENTIFIER;
                     break;
                 case R:
+                    if (nextChar == 'e') {
+                        currentState = State.RE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case RE:
+                    if (nextChar == 't') {
+                        currentState = State.RET;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case RET:
+                    if (nextChar == 'u') {
+                        currentState = State.RETU;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case RETU:
+                    if (nextChar == 'r') {
+                        currentState = State.RETUR;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case RETUR:
+                    if (nextChar == 'n') {
+                        currentState = State.RETURN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case RETURN:
+                    currentState = State._IDENTIFIER;
                     break;
                 case S:
+                    if (nextChar == 't') {
+                        currentState = State.ST;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case ST:
+                    if (nextChar == 'r') {
+                        currentState = State.STR;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case STR:
+                    if (nextChar == 'i') {
+                        currentState = State.STRI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case STRI:
+                    if (nextChar == 'n') {
+                        currentState = State.STRIN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case STRIN:
+                    if (nextChar == 'g') {
+                        currentState = State.STRING;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case STRING:
+                    currentState = State._IDENTIFIER;
                     break;
                 case V:
+                    if (nextChar == 'o') {
+                        currentState = State.VO;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case VO:
+                    if (nextChar == 'i') {
+                        currentState = State.VOI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case VOI:
+                    if (nextChar == 'd') {
+                        currentState = State.VOID;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case VOID:
+                    currentState = State._IDENTIFIER;
                     break;
                 case W:
+                    if (nextChar == 'h') {
+                        currentState = State.WH;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case WH:
+                    if (nextChar == 'i') {
+                        currentState = State.WHI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case WHI:
+                    if (nextChar == 'l') {
+                        currentState = State.WHIL;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case WHIL:
+                    if (nextChar == 'e') {
+                        currentState = State.WHILE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
                     break;
                 case WHILE:
+                    currentState = State._IDENTIFIER;
                     break;
                 case _EQUALS:
                     break;
@@ -196,6 +410,8 @@ public class Tokenizer {
                 case _PARTIAL_STRING_LITERAL:
                     break;
                 case _INVALID: // NUMBER INTO LETTER
+                    break;
+                case _IDLE:
                     break;
                 case _IDENTIFIER:
                     break;
@@ -276,17 +492,17 @@ enum State {
     IN,
     INT,
     P,
+    PU,
+    PUB,
+    PUBL,
+    PUBLI,
+    PUBLIC,
     PR,
     PRI,
     PRIV,
     PRIVA,
     PRIVAT,
     PRIVATE,
-    PU,
-    PUB,
-    PUBL,
-    PUBLI,
-    PUBLIC,
     R,
     RE,
     RET,
