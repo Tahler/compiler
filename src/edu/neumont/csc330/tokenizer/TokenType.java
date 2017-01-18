@@ -8,10 +8,11 @@ public enum TokenType {
     VOID,
 
     // key words
-    RETURN,
-    IF,
     ELSE,
     FOR,
+    IF,
+    WHILE,
+    RETURN,
 
     // key symbols
     SEMICOLON,
