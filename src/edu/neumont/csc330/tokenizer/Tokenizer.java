@@ -42,12 +42,21 @@ public class Tokenizer {
     public List<Token> tokenize(Iterator<Character> iterator) {
         List<Token> tokens = new ArrayList<>();
         State currentState = State._IDLE;
-        int lineNumber = 0, tokenColumnStart = 0, column = -1;
+        int tokenColumnStart = 0;
+        int lineNumber = 0;
+        int columnNumber = 0;
+        StringBuilder currentToken = new StringBuilder();
         while (iterator.hasNext()) {
             column++;
             Character nextChar = iterator.next();
-            if (isStartOfNextToken(currentState, nextChar)) {
-                // flush current -- move to idle
+            if (nextCharTerminatesCurrentToken(currentState, nextChar)) {
+                TokenLocation location = new TokenLocation("", lineNumber, columnNumber);
+                TokenType type = TokenType.fromState(currentState);
+                String value = currentToken.toString();
+                Token token = new Token(location, type, value);
+                tokens.add(token);
+
+                currentState = State._IDLE;
             }
 
             switch (currentState) {
@@ -554,7 +563,7 @@ public class Tokenizer {
         return tokens;
     }
 
-    private boolean isStartOfNextToken(State currentState, Character nextChar) {
+    private boolean nextCharTerminatesCurrentToken(State currentState, Character nextChar) {
         if (isStartingChar(nextChar)) {
             return true;
         }
@@ -572,6 +581,7 @@ public class Tokenizer {
                 shouldTerminate = currentState != State._PARTIAL_STRING_LITERAL;
                 break;
             default:
+                // TODO: probable bug: normal chars following an equals (e.g. "String def; String abc =def;")
                 shouldTerminate = false;
                 break;
         }
