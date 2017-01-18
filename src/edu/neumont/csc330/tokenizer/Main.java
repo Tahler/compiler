@@ -1,5 +1,8 @@
 package edu.neumont.csc330.tokenizer;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Main {
     public static final String USAGE = "Usage: tkn [input-file]";
 
@@ -8,9 +11,10 @@ public class Main {
             printUsage();
             System.exit(1);
         }
-        String inputFilePath = args[1];
+        String inputFilePath = args[0];
         Tokenizer tokenizer = new Tokenizer();
-        tokenizer.tokenize(new CharacterIterator(inputFilePath));
+        List<Token> tokens = tokenizer.tokenize(new CharacterIterator(inputFilePath));
+        System.out.println(tokens);
     }
 
     public static void printUsage() {
