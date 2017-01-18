@@ -54,7 +54,7 @@ public class Tokenizer {
                 String value = currentToken.toString();
                 Token token = new Token(location, type, value);
                 tokens.add(token);
-
+                currentToken = new StringBuilder();
                 currentState = State._IDLE;
             }
 
@@ -551,6 +551,10 @@ public class Tokenizer {
                             } else if (Character.isAlphabetic(nextChar)) {
                                 currentState = State._IDENTIFIER;
                             } else {
+                                if (nextChar == '\n') {
+                                    lineNumber++;
+                                    columnNumber = 0;
+                                }
                                 currentState = State._IDLE;
                             }
                             break;
@@ -559,6 +563,11 @@ public class Tokenizer {
                 case _IDENTIFIER:
                     // TODO: same as String? Nothing should cancel me if i got here to begin with
                     break;
+            }
+
+            if (currentState != State._IDLE) {
+                currentToken.append(nextChar);
+                columnNumber++;
             }
         }
         return tokens;
