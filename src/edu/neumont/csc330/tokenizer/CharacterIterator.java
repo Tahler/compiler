@@ -14,6 +14,8 @@ public class CharacterIterator implements Iterator<Character> {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+        this.nextChar = Optional.empty();
+        this.next();
     }
 
     @Override
@@ -23,7 +25,7 @@ public class CharacterIterator implements Iterator<Character> {
 
     @Override
     public Character next() {
-        char current = this.nextChar.orElse(null);
+        Character current = this.nextChar.orElse(null);
         int next = this.nextByte();
         this.nextChar = next == -1
                 ? Optional.empty()
