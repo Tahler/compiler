@@ -47,7 +47,7 @@ public class Tokenizer {
         StringBuilder currentToken = new StringBuilder();
         while (iterator.hasNext()) {
             Character nextChar = iterator.next();
-            if (nextCharTerminatesCurrentToken(currentState, nextChar)) {
+            if (currentState != State._IDLE && nextCharTerminatesCurrentToken(currentState, nextChar)) {
                 TokenLocation location = new TokenLocation(lineNumber, tokenColumnStart);
                 TokenType type = TokenType.fromState(currentState);
                 String value = currentToken.toString();
