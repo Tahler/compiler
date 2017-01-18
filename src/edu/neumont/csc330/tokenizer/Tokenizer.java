@@ -6,6 +6,34 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Tokenizer {
+    private static final Character[] ARITHMETIC_OPERATORS = new Character[] {
+            '+',
+            '-',
+            '*',
+            '/',
+    };
+
+    private static final Character[] BRACES = new Character[] {
+            '{',
+            '}',
+            '(',
+            ')',
+            '[',
+            ']',
+    };
+
+    private static final Character[] SPECIAL_CHARACTERS = new Character[] {
+            ';',
+            ',',
+    };
+
+    private static final Character[] WHITESPACE_CHARACTERS = new Character[] {
+            ' ',
+            '\t',
+            '\n',
+            '\r',
+    };
+
     public Tokenizer() {
 
     }
@@ -16,7 +44,7 @@ public class Tokenizer {
         int lineNumber = 0, tokenColumnStart = 0, column = -1;
         while (iterator.hasNext()) {
             Character nextChar = iterator.next();
-            if (willTerminate(currentState, nextChar)) {
+            if (isStartOfNextToken(currentState, nextChar)) {
                 // flush current -- move to idle
             }
 
@@ -167,7 +195,7 @@ public class Tokenizer {
                     break;
                 case _PARTIAL_STRING_LITERAL:
                     break;
-                case _INVALID:
+                case _INVALID: // NUMBER INTO LETTER
                     break;
                 case _IDENTIFIER:
                     break;
@@ -176,7 +204,56 @@ public class Tokenizer {
         return tokens;
     }
 
-    private boolean willTerminate(State currentState, Character nextChar) {
+    private boolean isStartOfNextToken(State currentState, Character nextChar) {
+        if (isStartingChar(nextChar)) {
+            return true;
+        }
+
+        boolean shouldTerminate;
+        switch (nextChar) {
+            case '=':
+                // equals will start next token if NOT preceded by an equals, lt, or gt sign
+                shouldTerminate = currentState != State._EQUALS
+                        && currentState != State._LESS_THAN
+                        && currentState != State._GREATER_THAN;
+                break;
+            case '"':
+                // a quote will start next token if NOT currently in the _PARTIAL_STRING_LITERAL state
+                shouldTerminate = currentState != State._PARTIAL_STRING_LITERAL;
+                break;
+            default:
+                shouldTerminate = false;
+                break;
+        }
+        return shouldTerminate;
+    }
+
+    /**
+     * Returns true if and only if the character DEFINITELY starts a new token.
+     */
+    private boolean isStartingChar(Character character) {
+        return isWhitespace(character)
+                || isArithmeticOperator(character)
+                || isBrace(character)
+                || isSpecial(character)
+                || character == '<'
+                || character == '>';
+    }
+
+    private boolean isWhitespace(Character character) {
+        return Arrays.stream(WHITESPACE_CHARACTERS).anyMatch(c -> c.equals(character));
+    }
+
+    private boolean isArithmeticOperator(Character character) {
+        return Arrays.stream(ARITHMETIC_OPERATORS).anyMatch(c -> c.equals(character));
+    }
+
+    private boolean isBrace(Character character) {
+        return Arrays.stream(BRACES).anyMatch(c -> c.equals(character));
+    }
+
+    private boolean isSpecial(Character character) {
+        return Arrays.stream(SPECIAL_CHARACTERS).anyMatch(c -> c.equals(character));
     }
 }
 
