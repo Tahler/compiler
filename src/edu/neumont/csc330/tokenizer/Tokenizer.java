@@ -43,13 +43,11 @@ public class Tokenizer {
         List<Token> tokens = new ArrayList<>();
         State currentState = State._IDLE;
         int lineNumber = 0, tokenColumnStart = 0, column = -1;
-        StringBuilder chars = new StringBuilder();
         while (iterator.hasNext()) {
             column++;
             Character nextChar = iterator.next();
             if (isStartOfNextToken(currentState, nextChar)) {
                 // flush current -- move to idle
-                currentState = State._IDLE;
             }
 
             switch (currentState) {
@@ -203,7 +201,7 @@ public class Tokenizer {
                     break;
                 case PRI:
                     if (nextChar == 'v') {
-                        currentState = State.PRI;
+                        currentState = State.PRIV;
                     } else {
                         currentState = State._IDENTIFIER;
                     }
@@ -364,56 +362,192 @@ public class Tokenizer {
                     currentState = State._IDENTIFIER;
                     break;
                 case _EQUALS:
+                    if (nextChar == '=') {
+                        currentState = State._EQUALS_EQUALS;
+                    } else {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _EQUALS_EQUALS:
+                    currentState = State._INVALID;
                     break;
                 case _NOT:
+                    if (nextChar == '=') {
+                        currentState = State._NOT_EQUALS;
+                    } else {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _NOT_EQUALS:
+                    currentState = State._INVALID;
                     break;
                 case _LESS_THAN:
+                    if (nextChar == '=') {
+                        currentState = State._LESS_THAN_EQUAL;
+                    } else {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _LESS_THAN_EQUAL:
+                    currentState = State._INVALID;
                     break;
                 case _GREATER_THAN:
+                    if (nextChar == '=') {
+                        currentState = State._GREATER_THAN_EQUAL;
+                    } else {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _GREATER_THAN_EQUAL:
+                    currentState = State._INVALID;
                     break;
                 case _OPEN_PARENTHESIS:
+                    currentState = State._INVALID;
                     break;
                 case _CLOSE_PARENTHESIS:
+                    currentState = State._INVALID;
                     break;
                 case _OPEN_CURLY:
+                    currentState = State._INVALID;
                     break;
                 case _CLOSE_CURLY:
+                    currentState = State._INVALID;
                     break;
                 case _OPEN_SQUARE:
+                    currentState = State._INVALID;
                     break;
                 case _CLOSE_SQUARE:
+                    currentState = State._INVALID;
                     break;
                 case _INT_LITERAL:
+                    if (nextChar == '.') {
+                        currentState = State._FLOAT_LITERAL;
+                    } else if (!Character.isDigit(nextChar)) {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _FLOAT_LITERAL:
+                    if (!Character.isDigit(nextChar)) {
+                        currentState = State._INVALID;
+                    }
                     break;
                 case _COMMA:
+                    currentState = State._INVALID;
                     break;
                 case _SEMICOLON:
+                    currentState = State._INVALID;
                     break;
                 case _PLUS:
+                    currentState = State._INVALID;
                     break;
                 case _MINUS:
+                    currentState = State._INVALID;
                     break;
                 case _ASTERISK:
+                    currentState = State._INVALID;
                     break;
                 case _FORWARD_SLASH:
+                    currentState = State._INVALID;
                     break;
                 case _PARTIAL_STRING_LITERAL:
+                    // TODO: Nothing to do? Everything is cool to go here, so if we're here we're good until we get terminated
                     break;
                 case _INVALID: // NUMBER INTO LETTER
+                    currentState = State._INVALID;
                     break;
                 case _IDLE:
+                    switch (nextChar) {
+                        case 'd':
+                            currentState = State.D;
+                            break;
+                        case 'e':
+                            currentState = State.E;
+                            break;
+                        case 'f':
+                            currentState = State.F;
+                            break;
+                        case 'i':
+                            currentState = State.I;
+                            break;
+                        case 'p':
+                            currentState = State.P;
+                            break;
+                        case 'r':
+                            currentState = State.R;
+                            break;
+                        case 's':
+                            currentState = State.S;
+                            break;
+                        case 'v':
+                            currentState = State.V;
+                            break;
+                        case 'w':
+                            currentState = State.W;
+                            break;
+                        case '=':
+                            currentState = State._EQUALS;
+                            break;
+                        case '{':
+                            currentState = State._OPEN_CURLY;
+                            break;
+                        case '}':
+                            currentState = State._CLOSE_CURLY;
+                            break;
+                        case '[':
+                            currentState = State._OPEN_SQUARE;
+                            break;
+                        case ']':
+                            currentState = State._CLOSE_SQUARE;
+                            break;
+                        case '(':
+                            currentState = State._OPEN_PARENTHESIS;
+                            break;
+                        case ')':
+                            currentState = State._CLOSE_PARENTHESIS;
+                            break;
+                        case '*':
+                            currentState = State._ASTERISK;
+                            break;
+                        case '+':
+                            currentState = State._PLUS;
+                            break;
+                        case '/':
+                            currentState = State._FORWARD_SLASH;
+                            break;
+                        case '-':
+                            currentState = State._MINUS;
+                            break;
+                        case '!':
+                            currentState = State._NOT;
+                            break;
+                        case '>':
+                            currentState = State._GREATER_THAN;
+                            break;
+                        case '<':
+                            currentState = State._LESS_THAN;
+                            break;
+                        case ',':
+                            currentState = State._COMMA;
+                            break;
+                        case ';':
+                            currentState = State._SEMICOLON;
+                            break;
+                        case '"':
+                            currentState = State._PARTIAL_STRING_LITERAL;
+                            break;
+                        default:
+                            if (Character.isDigit(nextChar)) {
+                                currentState = State._INT_LITERAL;
+                            } else if (Character.isAlphabetic(nextChar)) {
+                                currentState = State._IDENTIFIER;
+                            } else {
+                                currentState = State._INVALID;
+                            }
+                            break;
+                    }
                     break;
                 case _IDENTIFIER:
+                    // TODO: same as String? Nothing should cancel me if i got here to begin with
                     break;
             }
         }
