@@ -276,17 +276,17 @@ enum State {
     IN,
     INT,
     P,
-    PU,
-    PUB,
-    PUBL,
-    PUBLI,
-    PUBLIC,
     PR,
     PRI,
     PRIV,
     PRIVA,
     PRIVAT,
     PRIVATE,
+    PU,
+    PUB,
+    PUBL,
+    PUBLI,
+    PUBLIC,
     R,
     RE,
     RET,
@@ -308,6 +308,7 @@ enum State {
     WHI,
     WHIL,
     WHILE,
+
     _EQUALS,
     _EQUALS_EQUALS,
     _NOT,
@@ -316,22 +317,29 @@ enum State {
     _LESS_THAN_EQUAL,
     _GREATER_THAN,
     _GREATER_THAN_EQUAL,
+
     _OPEN_PARENTHESIS,
     _CLOSE_PARENTHESIS,
     _OPEN_CURLY,
     _CLOSE_CURLY,
     _OPEN_SQUARE,
     _CLOSE_SQUARE,
+
     _INT_LITERAL,
     _FLOAT_LITERAL,
     _PARTIAL_STRING_LITERAL,
+
     _COMMA,
     _SEMICOLON,
+
     _PLUS,
     _MINUS,
     _ASTERISK,
     _FORWARD_SLASH,
+
     _INVALID,
+
     _IDLE,
+
     _IDENTIFIER,
 }
