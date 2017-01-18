@@ -47,7 +47,6 @@ public class Tokenizer {
         int columnNumber = 0;
         StringBuilder currentToken = new StringBuilder();
         while (iterator.hasNext()) {
-            column++;
             Character nextChar = iterator.next();
             if (nextCharTerminatesCurrentToken(currentState, nextChar)) {
                 TokenLocation location = new TokenLocation("", lineNumber, columnNumber);
@@ -459,7 +458,9 @@ public class Tokenizer {
                     currentState = State._INVALID;
                     break;
                 case _PARTIAL_STRING_LITERAL:
-                    // TODO: Nothing to do? Everything is cool to go here, so if we're here we're good until we get terminated
+                    if (nextChar == '"') {
+                        currentState = State._STRING_LITERAL;
+                    }
                     break;
                 case _INVALID: // NUMBER INTO LETTER
                     currentState = State._INVALID;
@@ -550,7 +551,7 @@ public class Tokenizer {
                             } else if (Character.isAlphabetic(nextChar)) {
                                 currentState = State._IDENTIFIER;
                             } else {
-                                currentState = State._INVALID;
+                                currentState = State._IDLE;
                             }
                             break;
                     }
@@ -705,6 +706,7 @@ enum State {
     _INT_LITERAL,
     _FLOAT_LITERAL,
     _PARTIAL_STRING_LITERAL,
+    _STRING_LITERAL,
 
     _COMMA,
     _SEMICOLON,
