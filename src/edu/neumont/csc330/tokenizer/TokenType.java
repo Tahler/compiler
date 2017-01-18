@@ -19,6 +19,7 @@ public enum TokenType {
     COMMA,
     // assignment
     EQUALS,
+    PLUS_PLUS,
     // arithmetic
     PLUS,
     MINUS,
@@ -132,6 +133,9 @@ public enum TokenType {
                 break;
             case _PLUS:
                 type = TokenType.PLUS;
+                break;
+            case _PLUS_PLUS:
+                type = TokenType.PLUS_PLUS;
                 break;
             case _MINUS:
                 type = TokenType.MINUS;

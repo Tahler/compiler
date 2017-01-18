@@ -445,6 +445,13 @@ public class Tokenizer {
                     currentState = State._INVALID;
                     break;
                 case _PLUS:
+                    if (nextChar == '+') {
+                        currentState = State._PLUS_PLUS;
+                    } else {
+                        currentState = State._INVALID;
+                    }
+                    break;
+                case _PLUS_PLUS:
                     currentState = State._INVALID;
                     break;
                 case _MINUS:
@@ -460,6 +467,9 @@ public class Tokenizer {
                     if (nextChar == '"') {
                         currentState = State._STRING_LITERAL;
                     }
+                    break;
+                case _STRING_LITERAL:
+                    currentState = State._INVALID;
                     break;
                 case _INVALID: // NUMBER INTO LETTER
                     currentState = State._INVALID;
@@ -573,6 +583,14 @@ public class Tokenizer {
     }
 
     private boolean nextCharTerminatesCurrentToken(State currentState, Character nextChar) {
+        // always allow characters while reading a string literal
+        if (currentState == State._PARTIAL_STRING_LITERAL) {
+            return false;
+        }
+        // always terminate after finding a string
+        if (currentState == State._STRING_LITERAL) {
+            return true;
+        }
         if (isStartingChar(nextChar)) {
             return true;
         }
@@ -585,9 +603,9 @@ public class Tokenizer {
                         && currentState != State._LESS_THAN
                         && currentState != State._GREATER_THAN;
                 break;
-            case '"':
-                // a quote will start next token if NOT currently in the _PARTIAL_STRING_LITERAL state
-                shouldTerminate = currentState != State._PARTIAL_STRING_LITERAL;
+            case '+':
+                // a plus will start next token if NOT after another plus
+                shouldTerminate = currentState != State._PLUS;
                 break;
             default:
                 // other characters will start next token if an ending special char state
@@ -723,6 +741,8 @@ enum State {
     _MINUS,
     _ASTERISK,
     _FORWARD_SLASH,
+
+    _PLUS_PLUS,
 
     _INVALID,
 
