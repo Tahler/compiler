@@ -1,6 +1,7 @@
 package edu.neumont.csc330.tokenizer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -74,9 +75,9 @@ public class Tokenizer {
                     break;
                 case PRIVA:
                     break;
-                case PIRVAT:
+                case PRIVAT:
                     break;
-                case PIRVATE:
+                case PRIVATE:
                     break;
                 case R:
                     break;
@@ -88,7 +89,7 @@ public class Tokenizer {
                     break;
                 case RETUR:
                     break;
-                case RETRUN:
+                case RETURN:
                     break;
                 case S:
                     break;
@@ -207,14 +208,14 @@ enum State {
     PRI,
     PRIV,
     PRIVA,
-    PIRVAT,
-    PIRVATE,
+    PRIVAT,
+    PRIVATE,
     R,
     RE,
     RET,
     RETU,
     RETUR,
-    RETRUN,
+    RETURN,
     S,
     ST,
     STR,
