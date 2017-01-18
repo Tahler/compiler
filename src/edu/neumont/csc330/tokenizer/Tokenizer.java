@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-
 public class Tokenizer {
     private static final Character[] ARITHMETIC_OPERATORS = new Character[] {
             '+',
@@ -49,7 +48,7 @@ public class Tokenizer {
         while (iterator.hasNext()) {
             Character nextChar = iterator.next();
             if (nextCharTerminatesCurrentToken(currentState, nextChar)) {
-                TokenLocation location = new TokenLocation("", lineNumber, columnNumber);
+                TokenLocation location = new TokenLocation(lineNumber, tokenColumnStart);
                 TokenType type = TokenType.fromState(currentState);
                 String value = currentToken.toString();
                 Token token = new Token(location, type, value);
