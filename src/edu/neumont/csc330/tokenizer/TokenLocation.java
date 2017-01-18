@@ -16,4 +16,12 @@ public class TokenLocation {
     public int getColumnNumber() {
         return columnNumber;
     }
+
+    @Override
+    public String toString() {
+        return "TokenLocation{" +
+                "lineNumber=" + lineNumber +
+                ", columnNumber=" + columnNumber +
+                '}';
+    }
 }

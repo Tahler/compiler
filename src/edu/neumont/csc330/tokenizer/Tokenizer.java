@@ -42,7 +42,7 @@ public class Tokenizer {
         List<Token> tokens = new ArrayList<>();
         State currentState = State._IDLE;
         int tokenColumnStart = 0;
-        int lineNumber = 0;
+        int lineNumber = 1;
         int columnNumber = 0;
         StringBuilder currentToken = new StringBuilder();
         while (iterator.hasNext()) {
@@ -55,6 +55,10 @@ public class Tokenizer {
                 tokens.add(token);
                 currentToken = new StringBuilder();
                 currentState = State._IDLE;
+            }
+
+            if (currentState == State._IDLE) {
+                tokenColumnStart = columnNumber;
             }
 
             switch (currentState) {
@@ -576,8 +580,8 @@ public class Tokenizer {
 
             if (currentState != State._IDLE) {
                 currentToken.append(nextChar);
-                columnNumber++;
             }
+            columnNumber++;
         }
         return tokens;
     }
