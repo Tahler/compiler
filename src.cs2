@@ -1,10 +1,8 @@
-
-
-
 void Main(string[] args)
 {
     RunSqrt();
 }
+
 private void RunSqrt()
 {
     double A, B;
@@ -28,6 +26,7 @@ private void RunSqrt()
         WriteLine(B);
     }
 }
+
 public double Abs(double input)
 {
     double toReturn = input;
@@ -35,6 +34,5 @@ public double Abs(double input)
     {
         toReturn = -input;
     }
-
     return toReturn;
 }
