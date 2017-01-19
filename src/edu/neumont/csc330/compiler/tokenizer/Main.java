@@ -1,6 +1,5 @@
-package edu.neumont.csc330.tokenizer;
+package edu.neumont.csc330.compiler.tokenizer;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
