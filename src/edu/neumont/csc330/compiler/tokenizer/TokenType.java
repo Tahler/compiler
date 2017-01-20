@@ -153,8 +153,11 @@ public enum TokenType {
             case PUBLIC:
                 type = TokenType.TRASH_WORD;
                 break;
+            case _INVALID:
+                type = null;
+                break;
             default:
-                type = null; // TODO
+                type = TokenType.IDENTIFIER;
                 break;
         }
         return type;
