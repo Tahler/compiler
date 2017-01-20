@@ -52,7 +52,9 @@ public class Tokenizer {
                 TokenType type = TokenType.fromState(currentState);
                 String value = currentToken.toString();
                 Token token = new Token(location, type, value);
-                tokens.add(token);
+                if (token.getType() != TokenType.TRASH_WORD) {
+                    tokens.add(token);
+                }
                 currentToken = new StringBuilder();
                 currentState = State._IDLE;
             }
