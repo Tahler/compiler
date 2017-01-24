@@ -47,6 +47,7 @@ public enum TokenType {
     STRING_LITERAL,
 
     IDENTIFIER,
+    MAIN,
 
     TRASH_WORD;
 
@@ -152,6 +153,9 @@ public enum TokenType {
             case PRIVATE:
             case PUBLIC:
                 type = TokenType.TRASH_WORD;
+                break;
+            case MAIN:
+                type = MAIN;
                 break;
             case _INVALID:
                 type = null;

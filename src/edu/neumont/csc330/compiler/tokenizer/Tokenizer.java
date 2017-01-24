@@ -165,6 +165,31 @@ public class Tokenizer {
                 case INT:
                     currentState = State._IDENTIFIER;
                     break;
+                case M:
+
+                    if (nextChar == 'a') {
+                        currentState = State.MA;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MA:
+                    if (nextChar == 'i') {
+                        currentState = State.MAI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MAI:
+                    if (nextChar == 'n') {
+                        currentState = State.MAIN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MAIN:
+                    currentState = State._IDENTIFIER;
+                    break;
                 case P:
                     if (nextChar == 'u') {
                         currentState = State.PU;
@@ -494,6 +519,9 @@ public class Tokenizer {
                         case 'i':
                             currentState = State.I;
                             break;
+                        case 'M':
+                            currentState = State.M;
+                            break;
                         case 'p':
                             currentState = State.P;
                             break;
@@ -685,6 +713,10 @@ enum State {
     IF,
     IN,
     INT,
+    M,
+    MA,
+    MAI,
+    MAIN,
     P,
     PU,
     PUB,
