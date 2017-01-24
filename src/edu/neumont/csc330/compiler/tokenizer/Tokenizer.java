@@ -618,6 +618,10 @@ public class Tokenizer {
 
     private boolean nextCharTerminatesCurrentToken(State currentState, Character nextChar) {
         // always allow characters while reading a string literal
+        if (currentState == State._PLUS && nextChar == '+') {
+            return false;
+        }
+
         if (currentState == State._PARTIAL_STRING_LITERAL) {
             return false;
         }
