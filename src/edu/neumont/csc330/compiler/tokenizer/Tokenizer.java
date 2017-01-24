@@ -52,7 +52,9 @@ public class Tokenizer {
                 TokenType type = TokenType.fromState(currentState);
                 String value = currentToken.toString();
                 Token token = new Token(location, type, value);
-                tokens.add(token);
+                if (token.getType() != TokenType.TRASH_WORD) {
+                    tokens.add(token);
+                }
                 currentToken = new StringBuilder();
                 currentState = State._IDLE;
             }
@@ -161,6 +163,31 @@ public class Tokenizer {
                     }
                     break;
                 case INT:
+                    currentState = State._IDENTIFIER;
+                    break;
+                case M:
+
+                    if (nextChar == 'a') {
+                        currentState = State.MA;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MA:
+                    if (nextChar == 'i') {
+                        currentState = State.MAI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MAI:
+                    if (nextChar == 'n') {
+                        currentState = State.MAIN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case MAIN:
                     currentState = State._IDENTIFIER;
                     break;
                 case P:
@@ -492,6 +519,9 @@ public class Tokenizer {
                         case 'i':
                             currentState = State.I;
                             break;
+                        case 'M':
+                            currentState = State.M;
+                            break;
                         case 'p':
                             currentState = State.P;
                             break;
@@ -588,6 +618,10 @@ public class Tokenizer {
 
     private boolean nextCharTerminatesCurrentToken(State currentState, Character nextChar) {
         // always allow characters while reading a string literal
+        if (currentState == State._PLUS && nextChar == '+') {
+            return false;
+        }
+
         if (currentState == State._PARTIAL_STRING_LITERAL) {
             return false;
         }
@@ -683,6 +717,10 @@ enum State {
     IF,
     IN,
     INT,
+    M,
+    MA,
+    MAI,
+    MAIN,
     P,
     PU,
     PUB,
