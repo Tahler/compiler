@@ -145,19 +145,50 @@ ReduceState
     REDUCE_TO_BLOCK
 
 
-parse(tokens)
+parse(tokens) -> Node
     stack = stack of N nodes
 
     while more tokens
         curr = poll next token
         look = peek next token
 
-        switch curr.type
+        stack.push(curr)
+        reduce(stack, look)
+
+    if stack.size == 1
+        node = stack.pop()
+        if node is PROGRAM
+            return node
+        else
+            err
+    else
+        err
 
 reduce(stack: stack of nodes, look: next token/node)
     roller = stack of 0 nodes
-    ...
+    reduce_state = ReduceState.START
+
+    do
+        node = stack.pop()
+        roller.push(node)
+        reduce_state = advance_state(reduce_state, node, look)
+        if should_reduce(reduce_state, look)
+            reduced_node = collapse(reduce_state, roller)
+            roller.clear()
+            stack.push(reduced_node)
+    while reduce_state != ReduceState._INVALID AND !stack.is_empty()
+
+    while !roller.is_empty()
+        node = roller.pop()
+        stack.push(node)
+
+advance_state(current_state, prev_node, look) -> ReduceState
+    // State machine
+
+collapse(reduce_state, nodes) -> Node
+    node = new Node
+    node.children = nodes
+    return node
 
 should_reduce(ReduceState, look)
-    switch look
-    ...
+    // if it's one of the "REDUCE_TO" states
