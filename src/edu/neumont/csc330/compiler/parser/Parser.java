@@ -82,7 +82,8 @@ public class Parser {
         switch (reduceState) {
             case _INITIAL:
                 switch (node.getType()) {
-                    // TODO: deal with look ahead
+                    // TODO: These do not actually belong in initial -- but make it possible if there's nothing above it
+                    // will also require one of the special reduce cases
                     case DOUBLE:
                     case  INT:
                         nextState = ReduceState.REDUCE_TO_DATA_TYPE;
@@ -101,6 +102,9 @@ public class Parser {
                         nextState = ReduceState.EXPRESSION;
                         break;
                     case ASSIGNMENT:
+                        // Same problem as below --
+                        // An assignment should just jump to LINE_STATEMENT_BODY unless the element under this one is a
+                        // data type
                         nextState = ReduceState.ASSIGNMENT;
                         break;
                     case DECLARATION_ASSIGNMENT:
@@ -118,6 +122,8 @@ public class Parser {
                         // A statement will always reduce to a statement list before checking if the there
                         // is a statement list below it -- maybe this means the grammar is wrong?
                         // maybe a statement_list -> statement_list should equal a statement_list
+                        // I imagine this will happen to all of our lists
+                        // Or maybe we can just peek at the next item to see if it is a statement list?
                         nextState = ReduceState.REDUCE_TO_STATEMENT_LIST;
                         break;
                     case LESS_THAN:
