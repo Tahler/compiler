@@ -66,6 +66,7 @@ public class Parser {
         List<Node> children = new ArrayList<>();
         switch (type) {
             case STATEMENT_LIST:
+            case IDENTIFIER_LIST:
                 while(!roller.isEmpty()) {
                     Node node = roller.pop();
                     if (node.getType() == type) {
@@ -127,6 +128,9 @@ public class Parser {
                             nextState = ReduceState._INVALID;
                         }
                         break;
+                    case IDENTIFIER_LIST:
+                        nextState = ReduceState.IDENTIFIER_LIST;
+                        break;
                     case SEMICOLON:
                         nextState = ReduceState.SEMICOLON;
                         break;
@@ -162,7 +166,11 @@ public class Parser {
             case IDENTIFIER_LIST:
                 switch (node.getType()) {
                     case DATA_TYPE:
-                        nextState = ReduceState.REDUCE_TO_DECLARATION;
+                        if (look.getType() != TokenType.COMMA) {
+                            nextState = ReduceState.REDUCE_TO_DECLARATION;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
                         break;
                     default:
                         nextState = ReduceState._INVALID;
@@ -188,9 +196,19 @@ public class Parser {
                             nextState = ReduceState._INVALID;
                         }
                         break;
+                    case COMMA:
+                        nextState = ReduceState.IDENTIFIER__COMMA;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
+                }
+                break;
+            case IDENTIFIER__COMMA:
+                switch (node.getType()) {
+                    case IDENTIFIER:
+                    case IDENTIFIER_LIST:
+                        nextState = ReduceState.REDUCE_TO_IDENTIFIER_LIST;
                 }
                 break;
             case EXPRESSION__EQUALS:

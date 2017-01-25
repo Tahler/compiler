@@ -1,3 +1,4 @@
+double a, b, c;
 int a = 4.0;
 b = 4;
 int c = 5;
