@@ -109,6 +109,31 @@ public class Parser {
                     case SEMICOLON:
                         nextState = ReduceState.SEMICOLON;
                         break;
+                    case LINE_STATEMENT:
+                    case BLOCK_STATEMENT:
+                        nextState = ReduceState.REDUCE_TO_STATEMENT;
+                        break;
+                    case STATEMENT:
+                        // TODO: this is where we might need to take the deepest reduction
+                        // A statement will always reduce to a statement list before checking if the there
+                        // is a statement list below it -- maybe this means the grammar is wrong?
+                        // maybe a statement_list -> statement_list should equal a statement_list
+                        nextState = ReduceState.REDUCE_TO_STATEMENT_LIST;
+                        break;
+                    case LESS_THAN:
+                    case LESS_THAN_OR_EQUAL:
+                    case EQUALS_EQUALS:
+                    case GREATER_THAN:
+                    case GREATER_THAN_OR_EQUAL:
+                        nextState = ReduceState.REDUCE_TO_COMPARISON_OPERATOR;
+                        break;
+                    case FUNCTION_LIST_WITH_MAIN:
+                        if (look == null) {
+                            nextState = ReduceState.REDUCE_TO_PROGRAM;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
