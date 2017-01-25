@@ -3,8 +3,8 @@ package edu.neumont.csc330.compiler.parser;
 import edu.neumont.csc330.compiler.tokenizer.Token;
 import edu.neumont.csc330.compiler.tokenizer.TokenType;
 
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -34,7 +34,8 @@ public class Parser {
             while (!stack.isEmpty()) {
                 System.out.println(stack.pop().getType());
             }
-            throw new RuntimeException("Tokens could not be reduced to a single node");
+//            throw new RuntimeException("Tokens could not be reduced to a single node");
+            return null;
         }
     }
 
@@ -108,7 +109,16 @@ public class Parser {
                         nextState = ReduceState.REDUCE_TO_DATA_TYPE;
                         break;
                     case IDENTIFIER:
-                        nextState = ReduceState.IDENTIFIER;
+                        // TODO: when should this become an expression?
+                        if (look.getType() == TokenType.PLUS_PLUS ||
+                                look.getType() == TokenType.COMMA ||
+                                look.getType() == TokenType.SEMICOLON || // TODO: does not work in case a = b;
+                                look.getType() == TokenType.EQUALS ||
+                                look.getType() == TokenType.OPEN_PARENTHESIS) {
+                            nextState = ReduceState.IDENTIFIER;
+                        } else {
+                            nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        }
                         break;
                     case FLOAT_LITERAL:
                     case INT_LITERAL:
@@ -164,6 +174,9 @@ public class Parser {
                     case CLOSE_CURLY:
                         nextState = ReduceState.CLOSE_CURLY;
                         break;
+                    case BLOCK:
+                        nextState = ReduceState.BLOCK;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
@@ -185,12 +198,25 @@ public class Parser {
                 break;
             case EXPRESSION:
                 switch (node.getType()) {
+                    case COMPARISON_OPERATOR:
+                        nextState = ReduceState.EXPRESSION__COMPARISON_OPERATOR;
+                        break;
                     case EQUALS:
                         nextState = ReduceState.EXPRESSION__EQUALS;
                         break;
                     default:
                        nextState = ReduceState._INVALID;
                        break;
+                }
+                break;
+            case EXPRESSION__COMPARISON_OPERATOR:
+                switch (node.getType()) {
+                    case EXPRESSION:
+                        nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
                 }
                 break;
             case IDENTIFIER:
@@ -267,7 +293,45 @@ public class Parser {
                         break;
                 }
                 break;
-
+            case BLOCK:
+                switch (node.getType()) {
+                    case CLOSE_PARENTHESIS:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS:
+                switch (node.getType()) {
+                    case EXPRESSION:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__EXPRESSION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__EXPRESSION:
+                switch (node.getType()) {
+                    case OPEN_PARENTHESIS:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__EXPRESSION__OPEN_PARENTEHSIS;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__EXPRESSION__OPEN_PARENTEHSIS:
+                switch (node.getType()) {
+                    case WHILE:
+                        nextState = ReduceState.REDUCE_TO_WHILE_STATEMENT;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
         }
         return nextState;
     }

@@ -124,7 +124,7 @@ enum ReduceState {
 
     // Special
     _INITIAL,
-    _INVALID;
+    _INVALID, EXPRESSION__COMPARISON_OPERATOR;
 
     public static final String REDUCE_IDENTIFIER = "REDUCE_TO";
 
