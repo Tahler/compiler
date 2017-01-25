@@ -177,6 +177,9 @@ public class Parser {
                     case BLOCK:
                         nextState = ReduceState.BLOCK;
                         break;
+                    case WHILE_STATEMENT:
+                        nextState = ReduceState.REDUCE_TO_BLOCK_STATEMENT;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
