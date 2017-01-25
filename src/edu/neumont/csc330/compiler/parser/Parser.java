@@ -28,7 +28,7 @@ public class Parser {
                 if (node.type == NodeType.PROGRAM) {
                     return node;
                 } else {
-                    throw new RuntimeException("Tokens could not be reduced to a program node")
+                    throw new RuntimeException("Tokens could not be reduced to a program node");
                 }
         } else {
             throw new RuntimeException("Tokens could not be reduced to a single node");

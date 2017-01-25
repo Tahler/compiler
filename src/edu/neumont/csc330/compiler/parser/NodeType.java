@@ -2,7 +2,7 @@ package edu.neumont.csc330.compiler.parser;
 
 import edu.neumont.csc330.compiler.tokenizer.TokenType;
 
-enum NodeType {
+public enum NodeType {
     // data types
     INT,
     DOUBLE,
