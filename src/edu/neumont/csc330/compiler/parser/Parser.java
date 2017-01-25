@@ -62,10 +62,25 @@ public class Parser {
         NodeType type = NodeType.valueOf(reduceTo);
 
         // TODO: handle more than simple case
+        // TODO: lists should consume the children lists and make their children their own
         List<Node> children = new ArrayList<>();
-        while(!roller.isEmpty()) {
-            Node node = roller.pop();
-            children.add(node);
+        switch (type) {
+            case STATEMENT_LIST:
+                while(!roller.isEmpty()) {
+                    Node node = roller.pop();
+                    if (node.getType() == type) {
+                        children.addAll(node.getChildren());
+                    } else {
+                        children.add(node);
+                    }
+                }
+                break;
+            default:
+                while(!roller.isEmpty()) {
+                    Node node = roller.pop();
+                    children.add(node);
+                }
+                break;
         }
         Node reduced = new Node(type, children);
         return reduced;
@@ -113,12 +128,6 @@ public class Parser {
                         nextState = ReduceState.REDUCE_TO_STATEMENT;
                         break;
                     case STATEMENT:
-                        // TODO: this is where we might need to take the deepest reduction
-                        // A statement will always reduce to a statement list before checking if the there
-                        // is a statement list below it -- maybe this means the grammar is wrong?
-                        // maybe a statement_list -> statement_list should equal a statement_list
-                        // I imagine this will happen to all of our lists
-                        // Or maybe we can just peek at the next item to see if it is a statement list?
                         nextState = ReduceState.REDUCE_TO_STATEMENT_LIST;
                         break;
                     case LESS_THAN:
@@ -127,6 +136,9 @@ public class Parser {
                     case GREATER_THAN:
                     case GREATER_THAN_OR_EQUAL:
                         nextState = ReduceState.REDUCE_TO_COMPARISON_OPERATOR;
+                        break;
+                    case STATEMENT_LIST:
+                        nextState = ReduceState.STATEMENT_LIST;
                         break;
                     case FUNCTION_LIST_WITH_MAIN:
                         if (look == null) {
@@ -196,6 +208,14 @@ public class Parser {
                         nextState = ReduceState._INVALID;
                 }
                 break;
+            case STATEMENT_LIST:
+                switch (node.getType()) {
+                    case STATEMENT_LIST:
+                        nextState = ReduceState.REDUCE_TO_STATEMENT_LIST;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                }
 
         }
         return nextState;
