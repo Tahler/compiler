@@ -1,7 +1,6 @@
 package edu.neumont.csc330.compiler.parser;
 
 enum ReduceState {
-
     // Multi token
     FUNCTION_LIST_WITH_MAIN,
     FUNCTION_LIST,
@@ -124,6 +123,8 @@ enum ReduceState {
 
     // Special
     _INITIAL,
-    _INVALID
+    _INVALID;
+
+    public static final String REDUCE_IDENTIFIER = "REDUCE_TO";
 
 }

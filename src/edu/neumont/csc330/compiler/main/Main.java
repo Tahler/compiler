@@ -19,6 +19,8 @@ public class Main {
         String inputFilePath = args[0];
         Tokenizer tokenizer = new Tokenizer();
         List<Token> tokens = tokenizer.tokenize(new CharacterIterator(inputFilePath));
+        System.out.println(tokens);
+
         Parser parser = new Parser();
         Node rootNode = parser.parse(tokens);
         printTree(rootNode, 0);
