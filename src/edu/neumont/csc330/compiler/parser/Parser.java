@@ -101,13 +101,8 @@ public class Parser {
                     case EXPRESSION:
                         nextState = ReduceState.EXPRESSION;
                         break;
-                    case ASSIGNMENT:
-                        // Same problem as below --
-                        // An assignment should just jump to LINE_STATEMENT_BODY unless the element under this one is a
-                        // data type
-                        nextState = ReduceState.ASSIGNMENT;
-                        break;
                     case DECLARATION_ASSIGNMENT:
+                    case ASSIGNMENT:
                         nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
                         break;
                     case SEMICOLON:
@@ -145,6 +140,16 @@ public class Parser {
                         break;
                 }
                 break;
+            case IDENTIFIER_LIST:
+                switch (node.getType()) {
+                    case DATA_TYPE:
+                        nextState = ReduceState.REDUCE_TO_DECLARATION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+
+                }
+                break;
             case EXPRESSION:
                 switch (node.getType()) {
                     case EQUALS:
@@ -155,19 +160,26 @@ public class Parser {
                        break;
                 }
                 break;
-            case EXPRESSION__EQUALS:
+            case IDENTIFIER:
                 switch (node.getType()) {
-                    case IDENTIFIER:
-                        nextState = ReduceState.REDUCE_TO_ASSIGNMENT;
+                    case DATA_TYPE:
+                        if (look.getType() != TokenType.COMMA) {
+                            nextState = ReduceState.REDUCE_TO_DECLARATION;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
                         break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
                 }
                 break;
-            case ASSIGNMENT:
+            case EXPRESSION__EQUALS:
                 switch (node.getType()) {
-                    case DATA_TYPE:
+                    case IDENTIFIER:
+                        nextState = ReduceState.REDUCE_TO_ASSIGNMENT;
+                        break;
+                    case DECLARATION:
                         nextState = ReduceState.REDUCE_TO_DECLARATION_ASSIGNMENT;
                         break;
                     default:
