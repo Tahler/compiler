@@ -120,6 +120,13 @@ public class Parser {
                     case ASSIGNMENT:
                         nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
                         break;
+                    case DECLARATION:
+                        if (look.getType() != TokenType.EQUALS) {
+                            nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
+                        break;
                     case SEMICOLON:
                         nextState = ReduceState.SEMICOLON;
                         break;
