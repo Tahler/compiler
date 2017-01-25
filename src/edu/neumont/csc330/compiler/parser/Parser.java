@@ -31,6 +31,9 @@ public class Parser {
 //                    throw new RuntimeException("Tokens could not be reduced to a program node");
 //                }
         } else {
+            while (!stack.isEmpty()) {
+                System.out.println(stack.pop().getType());
+            }
             throw new RuntimeException("Tokens could not be reduced to a single node");
         }
     }
@@ -158,6 +161,9 @@ public class Parser {
                             nextState = ReduceState._INVALID;
                         }
                         break;
+                    case CLOSE_CURLY:
+                        nextState = ReduceState.CLOSE_CURLY;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
@@ -241,6 +247,26 @@ public class Parser {
                     default:
                         nextState = ReduceState._INVALID;
                 }
+                break;
+            case CLOSE_CURLY:
+                switch (node.getType()) {
+                    case STATEMENT_LIST:
+                        nextState = ReduceState.CLOSE_CURLY__STATEMENT_LIST;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                }
+                break;
+            case CLOSE_CURLY__STATEMENT_LIST:
+                switch (node.getType()) {
+                    case OPEN_CURLY:
+                        nextState = ReduceState.REDUCE_TO_BLOCK;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
 
         }
         return nextState;
