@@ -71,6 +71,11 @@ public class Parser {
         // TODO: lists should consume the children lists and make their children their own
         List<Node> children = new ArrayList<>();
         switch (reduceState) {
+            case REDUCE_TO_ARGUMENT_LIST_FROM_EMTPY:
+                while (!roller.isEmpty()) {
+                    stack.push(roller.pop());
+                }
+                break;
             case REDUCE_TO_EXPRESSION_FROM_IDENTIFIER:
             case REDUCE_TO_UNARY_OPERATOR:
             case REDUCE_TO_DATA_TYPE:
@@ -100,6 +105,7 @@ public class Parser {
                     break;
             }
         }
+
         Node reduced = new Node(type, children);
         return reduced;
     }
@@ -209,6 +215,19 @@ public class Parser {
                         break;
                     case VOID:
                         nextState = ReduceState.REDUCE_TO_RETURN_TYPE;
+                        break;
+                    case OPEN_PARENTHESIS:
+                        nextState = ReduceState.OPEN_PARENTHESIS;
+                        break;
+                    case CLOSE_PARENTHESIS:
+                        nextState = ReduceState.CLOSE_PARENTHESIS;
+                        break;
+                    case FUNCTION_CALL:
+                        if (look.getType() == TokenType.SEMICOLON) {
+                            nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
                         break;
                     default:
                         nextState = ReduceState._INVALID;
@@ -447,6 +466,50 @@ public class Parser {
                 switch (node.getType()) {
                     case RETURN_TYPE:
                         nextState = ReduceState.REDUCE_TO_FUNCTION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case OPEN_PARENTHESIS:
+                switch (node.getType()) {
+                    case IDENTIFIER:
+                        if (look.getType() == TokenType.CLOSE_PARENTHESIS) {
+                            nextState = ReduceState.REDUCE_TO_ARGUMENT_LIST_FROM_EMTPY;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case CLOSE_PARENTHESIS:
+                switch (node.getType()) {
+                    case ARGUMENT_LIST:
+                        nextState = ReduceState.CLOSE_PARENTHESIS__ARGUMENT_LIST;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case CLOSE_PARENTHESIS__ARGUMENT_LIST:
+                switch (node.getType()) {
+                    case OPEN_PARENTHESIS:
+                        nextState = ReduceState.CLOSE_PARENTHESIS__ARGUMENT_LIST__OPEN_PARENTHESIS;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case CLOSE_PARENTHESIS__ARGUMENT_LIST__OPEN_PARENTHESIS:
+                switch (node.getType()) {
+                    case IDENTIFIER:
+                        nextState = ReduceState.REDUCE_TO_FUNCTION_CALL;
                         break;
                     default:
                         nextState = ReduceState._INVALID;
