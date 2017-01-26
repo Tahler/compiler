@@ -35,7 +35,6 @@ ReduceState
     // [DOUBLE]->STATEMENT_LIST
     REDUCE_TO_DATA_TYPE
 
-    // [COMPARISON_OPERATOR]
     // [PLUS]
     // [MINUS]->EXPRESSION // TODO
     // [MULTIPLY]

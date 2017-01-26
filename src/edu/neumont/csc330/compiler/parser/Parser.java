@@ -137,6 +137,11 @@ public class Parser {
                     case INT_LITERAL:
                         nextState = ReduceState.REDUCE_TO_LITERAL;
                         break;
+                    case PLUS:
+                    case ASTERISK:
+                    case FORWARD_SLASH:
+                        nextState = ReduceState.REDUCE_TO_BINARY_OPERATOR;
+                        break;
                     case LITERAL:
                         nextState = ReduceState.REDUCE_TO_EXPRESSION;
                         break;
@@ -266,9 +271,22 @@ public class Parser {
                             nextState = ReduceState._INVALID;
                         }
                         break;
+                    case BINARY_OPERATOR:
+                        nextState = ReduceState.EXPRESSION__BINARY_OPERATOR;
+                        break;
                     default:
                        nextState = ReduceState._INVALID;
                        break;
+                }
+                break;
+            case EXPRESSION__BINARY_OPERATOR:
+                switch (node.getType()) {
+                    case EXPRESSION:
+                        nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
                 }
                 break;
             case EXPRESSION__COMPARISON_OPERATOR:
@@ -316,7 +334,9 @@ public class Parser {
             case EXPRESSION__EQUALS:
                 switch (node.getType()) {
                     case IDENTIFIER:
-                        nextState = ReduceState.REDUCE_TO_ASSIGNMENT;
+                        if (look.getType() != TokenType.FORWARD_SLASH) { // TODO: this should really be all binary operators
+                            nextState = ReduceState.REDUCE_TO_ASSIGNMENT;
+                        }
                         break;
                     case DECLARATION:
                         nextState = ReduceState.REDUCE_TO_DECLARATION_ASSIGNMENT;
@@ -382,6 +402,9 @@ public class Parser {
                         break;
                     case PARAMETER:
                         nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__PARAMETER;
+                        break;
+                    case IDENTIFIER:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER;
                         break;
                     default:
                         nextState = ReduceState._INVALID;
@@ -491,6 +514,9 @@ public class Parser {
                     case ARGUMENT_LIST:
                         nextState = ReduceState.CLOSE_PARENTHESIS__ARGUMENT_LIST;
                         break;
+                    case EXPRESSION:
+                        nextState = ReduceState.CLOSE_PARENTHESIS__EXPRESSION;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
@@ -510,6 +536,81 @@ public class Parser {
                 switch (node.getType()) {
                     case IDENTIFIER:
                         nextState = ReduceState.REDUCE_TO_FUNCTION_CALL;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER:
+                switch (node.getType()) {
+                    case CLOSE_SQUARE:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE:
+                switch (node.getType()) {
+                    case OPEN_SQUARE:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE:
+                switch (node.getType()) {
+                    case STRING:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING:
+                switch (node.getType()) {
+                    case OPEN_PARENTHESIS:
+                        nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING__OPEN_PARENTHESIS;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING__OPEN_PARENTHESIS:
+                switch (node.getType()) {
+                    case MAIN:
+                         nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING__OPEN_PARENTHESIS__MAIN;
+                         break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case BLOCK__CLOSE_PARENTHESIS__IDENTIFIER__CLOSE_SQUARE__OPEN_SQUARE__STRING__OPEN_PARENTHESIS__MAIN:
+                switch (node.getType()) {
+                    case RETURN_TYPE:
+                        nextState = ReduceState.REDUCE_TO_MAIN_FUNCTION;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+
+                }
+                break;
+            case CLOSE_PARENTHESIS__EXPRESSION:
+                switch (node.getType()) {
+                    case OPEN_PARENTHESIS:
+                        if (look.getType() != TokenType.OPEN_CURLY) {
+                            nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
                         break;
                     default:
                         nextState = ReduceState._INVALID;
