@@ -1,8 +1,9 @@
-while (a > b)
+double toReturn = 4;
+if (input < 0)
 {
-    double a, b, c;
-    int a = 4.0;
-    b = 4;
-    int c = 5;
-    double f;
+    toReturn = 5;
 }
+else {
+    toReturn = 6;
+}
+

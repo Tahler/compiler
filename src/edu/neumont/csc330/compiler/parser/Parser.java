@@ -178,7 +178,18 @@ public class Parser {
                         nextState = ReduceState.BLOCK;
                         break;
                     case WHILE_STATEMENT:
+                    case IF_STATEMENT:
                         nextState = ReduceState.REDUCE_TO_BLOCK_STATEMENT;
+                        break;
+                    case IF_SEGMENT:
+                        if (look != null && look.getType() == TokenType.ELSE) {
+                            nextState = ReduceState._INVALID;
+                        } else {
+                            nextState = ReduceState.REDUCE_TO_IF_STATEMENT;
+                        }
+                        break;
+                    case ELSE_SEGMENT:
+                        nextState = ReduceState.ELSE_SEGMENT;
                         break;
                     default:
                         nextState = ReduceState._INVALID;
@@ -301,6 +312,9 @@ public class Parser {
                     case CLOSE_PARENTHESIS:
                         nextState = ReduceState.BLOCK__CLOSE_PARENTHESIS;
                         break;
+                    case ELSE:
+                        nextState = ReduceState.REDUCE_TO_ELSE_SEGMENT;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                 }
@@ -330,11 +344,23 @@ public class Parser {
                     case WHILE:
                         nextState = ReduceState.REDUCE_TO_WHILE_STATEMENT;
                         break;
+                    case IF:
+                        nextState = ReduceState.REDUCE_TO_IF_SEGMENT;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
                 }
                 break;
+            case ELSE_SEGMENT:
+                switch (node.getType()) {
+                    case IF_SEGMENT:
+                        nextState = ReduceState.REDUCE_TO_IF_STATEMENT;
+                        break;
+                    default:
+                        nextState = ReduceState._INVALID;
+                        break;
+                }
         }
         return nextState;
     }
