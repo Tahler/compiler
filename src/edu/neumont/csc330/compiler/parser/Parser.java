@@ -63,29 +63,41 @@ public class Parser {
     private Node collapse(ReduceState reduceState, Token look, Stack<Node> stack, Stack<Node> roller) {
 
         String reduceTo = reduceState.name().substring(ReduceState.REDUCE_IDENTIFIER.length() + 1);
+        if (reduceTo.contains("FROM")) {
+            reduceTo = reduceTo.substring(0, reduceTo.indexOf("FROM") - 1);
+        }
         NodeType type = NodeType.valueOf(reduceTo);
 
         // TODO: handle more than simple case
         // TODO: lists should consume the children lists and make their children their own
         List<Node> children = new ArrayList<>();
-        switch (type) {
-            case STATEMENT_LIST:
-            case IDENTIFIER_LIST:
-                while(!roller.isEmpty()) {
-                    Node node = roller.pop();
-                    if (node.getType() == type) {
-                        children.addAll(node.getChildren());
-                    } else {
-                        children.add(node);
-                    }
-                }
+        switch (reduceState) {
+            case REDUCE_TO_EXPRESSION_FROM_IDENTIFIER:
+            case REDUCE_TO_UNARY_OPERATOR:
+                stack.push(roller.pop());
+                children.add(roller.pop());
+                assert (roller.isEmpty());
                 break;
             default:
-                while(!roller.isEmpty()) {
-                    Node node = roller.pop();
-                    children.add(node);
-                }
-                break;
+            switch (type) {
+                case STATEMENT_LIST:
+                case IDENTIFIER_LIST:
+                    while (!roller.isEmpty()) {
+                        Node node = roller.pop();
+                        if (node.getType() == type) {
+                            children.addAll(node.getChildren());
+                        } else {
+                            children.add(node);
+                        }
+                    }
+                    break;
+                default:
+                    while (!roller.isEmpty()) {
+                        Node node = roller.pop();
+                        children.add(node);
+                    }
+                    break;
+            }
         }
         Node reduced = new Node(type, children);
         return reduced;
@@ -110,15 +122,7 @@ public class Parser {
                         break;
                     case IDENTIFIER:
                         // TODO: when should this become an expression?
-                        if (look.getType() == TokenType.PLUS_PLUS ||
-                                look.getType() == TokenType.COMMA ||
-                                look.getType() == TokenType.SEMICOLON || // TODO: does not work in case a = b;
-                                look.getType() == TokenType.EQUALS ||
-                                look.getType() == TokenType.OPEN_PARENTHESIS) {
-                            nextState = ReduceState.IDENTIFIER;
-                        } else {
-                            nextState = ReduceState.REDUCE_TO_EXPRESSION;
-                        }
+                        nextState = ReduceState.IDENTIFIER;
                         break;
                     case FLOAT_LITERAL:
                     case INT_LITERAL:
@@ -191,6 +195,9 @@ public class Parser {
                     case ELSE_SEGMENT:
                         nextState = ReduceState.ELSE_SEGMENT;
                         break;
+                    case MINUS:
+                        nextState = ReduceState.MINUS;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
@@ -218,6 +225,9 @@ public class Parser {
                     case EQUALS:
                         nextState = ReduceState.EXPRESSION__EQUALS;
                         break;
+                    case UNARY_OPERATOR:
+                        nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        break;
                     default:
                        nextState = ReduceState._INVALID;
                        break;
@@ -244,6 +254,13 @@ public class Parser {
                         break;
                     case COMMA:
                         nextState = ReduceState.IDENTIFIER__COMMA;
+                        break;
+                    case COMPARISON_OPERATOR:
+                    case UNARY_OPERATOR:
+                    case BINARY_OPERATOR:
+                    case EQUALS:
+                    case OPEN_PARENTHESIS:
+                        nextState = ReduceState.REDUCE_TO_EXPRESSION_FROM_IDENTIFIER;
                         break;
                     default:
                         nextState = ReduceState._INVALID;
@@ -359,6 +376,15 @@ public class Parser {
                         break;
                     default:
                         nextState = ReduceState._INVALID;
+                        break;
+                }
+                break;
+            case MINUS:
+                switch (node.getType()) {
+                    case EXPRESSION:
+                        break;
+                    case EQUALS:
+                        nextState = ReduceState.REDUCE_TO_UNARY_OPERATOR;
                         break;
                 }
         }

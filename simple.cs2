@@ -1,9 +1,5 @@
-double toReturn = 4;
+double toReturn = input;
 if (input < 0)
 {
-    toReturn = 5;
+    toReturn = -input;
 }
-else {
-    toReturn = 6;
-}
-
