@@ -1,8 +1,4 @@
-double toReturn = input;
-if (input < 0)
+void Main(string[] args)
 {
-    toReturn = -input;
+    RunSqrt();
 }
-return toReturn;
-
-
