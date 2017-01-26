@@ -136,6 +136,7 @@ public class Parser {
                         break;
                     case DECLARATION_ASSIGNMENT:
                     case ASSIGNMENT:
+                    case RETURN_STATEMENT:
                         nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
                         break;
                     case DECLARATION:
@@ -198,6 +199,9 @@ public class Parser {
                     case MINUS:
                         nextState = ReduceState.MINUS;
                         break;
+                    case RETURN:
+                        nextState = ReduceState.RETURN;
+                        break;
                     default:
                         nextState = ReduceState._INVALID;
                         break;
@@ -227,6 +231,13 @@ public class Parser {
                         break;
                     case UNARY_OPERATOR:
                         nextState = ReduceState.REDUCE_TO_EXPRESSION;
+                        break;
+                    case RETURN:
+                        if (look.getType() == TokenType.SEMICOLON) {
+                            nextState = ReduceState.REDUCE_TO_RETURN_STATEMENT;
+                        } else {
+                            nextState = ReduceState._INVALID;
+                        }
                         break;
                     default:
                        nextState = ReduceState._INVALID;
@@ -260,6 +271,7 @@ public class Parser {
                     case BINARY_OPERATOR:
                     case EQUALS:
                     case OPEN_PARENTHESIS:
+                    case RETURN:
                         nextState = ReduceState.REDUCE_TO_EXPRESSION_FROM_IDENTIFIER;
                         break;
                     default:
@@ -387,6 +399,7 @@ public class Parser {
                         nextState = ReduceState.REDUCE_TO_UNARY_OPERATOR;
                         break;
                 }
+                break;
         }
         return nextState;
     }

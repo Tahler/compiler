@@ -3,3 +3,6 @@ if (input < 0)
 {
     toReturn = -input;
 }
+return toReturn;
+
+
