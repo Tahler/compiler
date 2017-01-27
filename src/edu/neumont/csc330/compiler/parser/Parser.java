@@ -1,6 +1,5 @@
 package edu.neumont.csc330.compiler.parser;
 
-import edu.neumont.csc330.compiler.main.Main;
 import edu.neumont.csc330.compiler.tokenizer.Token;
 import edu.neumont.csc330.compiler.tokenizer.TokenType;
 
@@ -25,19 +24,16 @@ public class Parser {
 
         if (stack.size() == 1) {
             Node node = stack.pop();
-//                if (node.type == NodeType.PROGRAM) {
+                if (node.type == NodeType.PROGRAM) {
                     return node;
-//                } else {
-//                    throw new RuntimeException("Tokens could not be reduced to a program node");
-//                }
+                } else {
+                    throw new RuntimeException("Tokens could not be reduced to a program node");
+                }
         } else {
             while (!stack.isEmpty()) {
                 System.out.println(stack.pop().getType());
-//                Main.printTree(stack.pop(), 0);
-//                System.out.println("\n");
             }
-//            throw new RuntimeException("Tokens could not be reduced to a single node");
-            return null;
+            throw new RuntimeException("Tokens could not be reduced to a single node");
         }
     }
 
