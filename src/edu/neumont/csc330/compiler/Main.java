@@ -1,4 +1,4 @@
-package edu.neumont.csc330.compiler.main;
+package edu.neumont.csc330.compiler;
 
 import edu.neumont.csc330.compiler.parser.Parser;
 import edu.neumont.csc330.compiler.tokenizer.CharacterIterator;
