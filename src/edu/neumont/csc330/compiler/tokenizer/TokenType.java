@@ -46,6 +46,8 @@ public enum TokenType {
     FLOAT_LITERAL,
     STRING_LITERAL,
 
+    WRITELINE,
+
     IDENTIFIER,
     MAIN,
 
@@ -80,6 +82,9 @@ public enum TokenType {
                 break;
             case WHILE:
                 type = TokenType.WHILE;
+                break;
+            case WRITELINE:
+                type = TokenType.WRITELINE;
                 break;
             case _EQUALS:
                 type = TokenType.EQUALS;

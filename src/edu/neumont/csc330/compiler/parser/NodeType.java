@@ -51,6 +51,9 @@ public enum NodeType {
     FLOAT_LITERAL,
     STRING_LITERAL,
 
+    WRITELINE,
+    WRITELINE_CALL,
+
     IDENTIFIER,
     MAIN,
 

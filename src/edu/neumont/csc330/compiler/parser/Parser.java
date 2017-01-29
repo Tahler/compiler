@@ -122,8 +122,6 @@ public class Parser {
     }
 
     private ReduceState advanceState(ReduceState reduceState, Node node, Token look) {
-//        System.out.println(reduceState +" : " + node.getType());
-        // TODO: everything!
         ReduceState nextState = ReduceState._INVALID;
         switch (reduceState) {
             case _INITIAL:
@@ -237,6 +235,9 @@ public class Parser {
                     case CLOSE_PARENTHESIS:
                         nextState = ReduceState.CLOSE_PARENTHESIS;
                         break;
+                    case WRITELINE_CALL:
+                        nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
+                        break;
                     case FUNCTION_CALL:
                         if (look != null && look.getType() == TokenType.SEMICOLON) {
                             nextState = ReduceState.REDUCE_TO_LINE_STATEMENT_BODY;
@@ -313,6 +314,7 @@ public class Parser {
             case EXPRESSION__OPEN_PARENTHESIS:
                 switch (node.getType()) {
                     case IDENTIFIER:
+                    case WRITELINE:
                         nextState = ReduceState.REDUCE_TO_ARGUMENT_LIST;
                         break;
                     default:
@@ -645,6 +647,9 @@ public class Parser {
                 break;
             case CLOSE_PARENTHESIS__ARGUMENT_LIST__OPEN_PARENTHESIS:
                 switch (node.getType()) {
+                    case WRITELINE:
+                        nextState = ReduceState.REDUCE_TO_WRITELINE_CALL;
+                        break;
                     case IDENTIFIER:
                         nextState = ReduceState.REDUCE_TO_FUNCTION_CALL;
                         break;

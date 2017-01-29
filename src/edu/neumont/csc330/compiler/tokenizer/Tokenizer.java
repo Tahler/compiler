@@ -399,6 +399,66 @@ public class Tokenizer {
                 case WHILE:
                     currentState = State._IDENTIFIER;
                     break;
+                case W_CAP:
+                    if (nextChar == 'r') {
+                        currentState = State.WR;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WR:
+                    if (nextChar == 'i') {
+                        currentState = State.WRI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRI:
+                    if (nextChar == 't') {
+                        currentState = State.WRIT;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRIT:
+                    if (nextChar == 'e') {
+                        currentState = State.WRITE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRITE:
+                    if (nextChar == 'L') {
+                        currentState = State.WRITEL;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRITEL:
+                    if (nextChar == 'i') {
+                        currentState = State.WRITELI;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRITELI:
+                    if (nextChar == 'n') {
+                        currentState = State.WRITELIN;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRITELIN:
+                    if (nextChar == 'e') {
+                        currentState = State.WRITELINE;
+                    } else {
+                        currentState = State._IDENTIFIER;
+                    }
+                    break;
+                case WRITELINE:
+                    currentState = State._IDENTIFIER;
+                    break;
+
                 case _EQUALS:
                     if (nextChar == '=') {
                         currentState = State._EQUALS_EQUALS;
@@ -536,6 +596,9 @@ public class Tokenizer {
                             break;
                         case 'w':
                             currentState = State.W;
+                            break;
+                        case 'W':
+                            currentState = State.W_CAP;
                             break;
                         case '=':
                             currentState = State._EQUALS;
@@ -754,6 +817,15 @@ enum State {
     WHI,
     WHIL,
     WHILE,
+    W_CAP,
+    WR,
+    WRI,
+    WRIT,
+    WRITE,
+    WRITEL,
+    WRITELI,
+    WRITELIN,
+    WRITELINE,
 
     _EQUALS,
     _EQUALS_EQUALS,
