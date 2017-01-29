@@ -75,6 +75,9 @@ public class Interpreter {
                 case DECLARATION_ASSIGNMENT:
                     declAssnVar(stmt);
                     break;
+                case DECLARATION:
+                    declVar(stmt);
+                    break;
                 case ASSIGNMENT:
                     assnVar(stmt);
                     break;
@@ -82,6 +85,7 @@ public class Interpreter {
                     execWriteLine(stmt);
                     break;
                 default:
+                    System.out.println(stmt.getType());
                     throw new RuntimeException("unimpl!");
             }
         } else {
@@ -260,8 +264,24 @@ public class Interpreter {
         assert statement.getType() == NodeType.DECLARATION;
 
         List<Node> children = statement.getChildren();
-        String identifier = getTokenString(children.get(1));
-        symbolTable.put(identifier, () -> 0.0);
+        Node idOrIdList = children.get(1);
+        switch (idOrIdList.getType()) {
+            case IDENTIFIER: {
+                String identifier = getTokenString(children.get(1));
+                symbolTable.put(identifier, () -> 0.0);
+                break;
+            }
+            case IDENTIFIER_LIST: {
+                List<Node> idList = children.get(1).getChildren();
+                for (int i = 0; i < idList.size(); i += 2) {
+                    String identifier = getTokenString(idList.get(i));
+                    symbolTable.put(identifier, () -> 0.0);
+                }
+                break;
+            }
+            default:
+                throw new RuntimeException("unreachable!");
+        }
     }
 
     private void assnVar(Node statement) {
@@ -270,7 +290,8 @@ public class Interpreter {
         List<Node> children = statement.getChildren();
         String identifier = getTokenString(children.get(0));
         Node expr = children.get(2);
-        symbolTable.put(identifier, () -> evalArithExpr(expr));
+        double val = evalArithExpr(expr);
+        symbolTable.put(identifier, () -> val);
     }
 
     private void declFunction(Node node) {

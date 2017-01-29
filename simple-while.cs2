@@ -1,0 +1,9 @@
+void Main(string[] args)
+{
+    double A = 0.0;
+    while (A < 10.0)
+    {
+        A = (A + 1.0);
+        WriteLine(A);
+    }
+}
