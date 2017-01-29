@@ -1,5 +1,6 @@
 package edu.neumont.csc330.compiler;
 
+import edu.neumont.csc330.compiler.interpreter.Interpreter;
 import edu.neumont.csc330.compiler.parser.Parser;
 import edu.neumont.csc330.compiler.tokenizer.CharacterIterator;
 import edu.neumont.csc330.compiler.tokenizer.Token;
@@ -9,7 +10,7 @@ import edu.neumont.csc330.compiler.parser.Node;
 import java.util.List;
 
 public class Main {
-    public static final String USAGE = "Usage: tkn [input-file]";
+    public static final String USAGE = "Usage: cs2 [input-file]";
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -20,10 +21,16 @@ public class Main {
         Tokenizer tokenizer = new Tokenizer();
         List<Token> tokens = tokenizer.tokenize(new CharacterIterator(inputFilePath));
         System.out.println(tokens);
+        System.out.println("------------------------------------------");
 
         Parser parser = new Parser();
         Node rootNode = parser.parse(tokens);
         printTree(rootNode, 0);
+        System.out.println("------------------------------------------");
+
+        Interpreter interpreter = new Interpreter();
+        interpreter.run(rootNode);
+        System.out.println("------------------------------------------");
     }
 
     public static void printTree(Node node, int depth) {
