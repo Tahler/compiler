@@ -85,12 +85,114 @@ public class Interpreter {
                     throw new RuntimeException("unimpl!");
             }
         } else {
-            throw new RuntimeException("unimplemented!");
-            // TODO:
+            assert subStmt.getType() == NodeType.BLOCK_STATEMENT;
+
+            Node stmt = subStmt.getChildren().get(0);
+            switch (stmt.getType()) {
+                case IF_STATEMENT: {
+                    execIf(stmt);
+                    break;
+                }
+                case WHILE_STATEMENT: {
+                    Node expr = stmt.getChildren().get(2);
+                    Node block = stmt.getChildren().get(4);
+                    while (evalBoolExpr(expr)) {
+                        execBlock(block);
+                    }
+                    break;
+                }
+                case FOR_STATEMENT: {
+                    Node expr = stmt.getChildren().get(3);
+                    Node post = stmt.getChildren().get(5);
+                    Node block = stmt.getChildren().get(7);
+                    for (stmt.getChildren().get(2).getChildren().forEach(this::execStatement);
+                         evalBoolExpr(expr);
+                         execPost(post)) {
+                        execBlock(block);
+                    }
+                    break;
+                }
+                default:
+                    throw new RuntimeException("unreachable!");
+            }
         }
     }
 
+    private void execPost(Node post) {
+        // only supports identifier++
+
+        String id = getTokenString(post.getChildren().get(0));
+        double curr = symbolTable.get(id).get();
+        double inc = curr + 1;
+        symbolTable.put(id, () -> inc);
+    }
+
+    private void execLineStatementBody(Node subStmt) {
+
+    }
+
+    private void execIf(Node ifStatement) {
+        assert ifStatement.getType() == NodeType.IF_STATEMENT;
+
+        List<Node> segments = ifStatement.getChildren();
+        Node ifSeg = segments.get(0);
+        Node expr = ifSeg.getChildren().get(2);
+        Node ifBlock = ifSeg.getChildren().get(4);
+        if (evalBoolExpr(expr)) {
+            execBlock(ifBlock);
+        } else {
+            if (segments.size() == 2) {
+                Node elseSeg = segments.get(1);
+                Node elseBlock = elseSeg.getChildren().get(1);
+                execBlock(elseBlock);
+            }
+        }
+    }
+
+    private boolean evalBoolExpr(Node expr) {
+        assert expr.getType() == NodeType.EXPRESSION;
+
+        List<Node> parts = expr.getChildren();
+        assert parts.size() == 3;
+
+        Node left = parts.get(0);
+        Node op = parts.get(1).getChildren().get(0);
+        Node right = parts.get(2);
+
+        boolean value;
+        switch (op.getType()) {
+            case LESS_THAN:
+                value = evalArithExpr(left) < evalArithExpr(right);
+                break;
+            case LESS_THAN_OR_EQUAL:
+                value = evalArithExpr(left) <= evalArithExpr(right);
+                break;
+            case GREATER_THAN:
+                value = evalArithExpr(left) > evalArithExpr(right);
+                break;
+            case GREATER_THAN_OR_EQUAL:
+                value = evalArithExpr(left) >= evalArithExpr(right);
+                break;
+            case EQUALS_EQUALS:
+                value = evalArithExpr(left) == evalArithExpr(right);
+                break;
+            case NOT_EQUALS:
+                value = evalArithExpr(left) != evalArithExpr(right);
+                break;
+
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+        return value;
+    }
+
     private double evalArithExpr(Node expr) {
+        // TODO: extract
+        if (expr.getType() == NodeType.IDENTIFIER) {
+            String id = getTokenString(expr);
+            return symbolTable.get(id).get();
+        }
+
         assert expr.getType() == NodeType.EXPRESSION;
 
         double value;

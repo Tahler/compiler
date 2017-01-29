@@ -1,0 +1,10 @@
+void Main(string[] args)
+{
+    double A = 10.0;
+    double B = 1.5;
+    if (A > B) {
+        WriteLine(A);
+    } else {
+        WriteLine(B);
+    }
+}
