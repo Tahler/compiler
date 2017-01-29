@@ -1,0 +1,7 @@
+void Main(string[] args)
+{
+    double A = 10.0;
+    double B = 1.5;
+    double C = (A * B);
+    WriteLine(C);
+}

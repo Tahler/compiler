@@ -54,7 +54,7 @@ public class Interpreter {
         assert node.getType() == NodeType.WRITELINE_CALL;
 
         Node expr = node.getChildren().get(2).getChildren().get(0);
-        System.out.println(evalExpr(expr));
+        System.out.println(evalArithExpr(expr));
     }
 
     private void execBlock(Node block) {
@@ -90,10 +90,10 @@ public class Interpreter {
         }
     }
 
-    private double evalExpr(Node expr) {
+    private double evalArithExpr(Node expr) {
         assert expr.getType() == NodeType.EXPRESSION;
 
-        double value = Double.MAX_VALUE;
+        double value;
         List<Node> parts = expr.getChildren();
         int numParts = parts.size();
         if (numParts == 1) {
@@ -107,10 +107,39 @@ public class Interpreter {
                 String id = getTokenString(part);
                 value = symbolTable.get(id).get();
             }
+        } else if (numParts == 3) {
+            Node inner = parts.get(1);
+            if (parts.get(0).getType() == NodeType.OPEN_PARENTHESIS) {
+                assert parts.get(2).getType() == NodeType.CLOSE_PARENTHESIS;
+                assert inner.getType() == NodeType.EXPRESSION;
+
+                value = evalArithExpr(inner);
+            } else {
+                assert inner.getType() == NodeType.BINARY_OPERATOR;
+
+                Node left = parts.get(0);
+                Node right = parts.get(2);
+                Node op = inner.getChildren().get(0);
+                switch (op.getType()) {
+                    case PLUS:
+                        value = evalArithExpr(left) + evalArithExpr(right);
+                        break;
+                    case MINUS:
+                        value = evalArithExpr(left) - evalArithExpr(right);
+                        break;
+                    case ASTERISK:
+                        value = evalArithExpr(left) * evalArithExpr(right);
+                        break;
+                    case FORWARD_SLASH:
+                        value = evalArithExpr(left) / evalArithExpr(right);
+                        break;
+                    default:
+                        throw new RuntimeException("unreachable!");
+                }
+            }
+        } else {
+            throw new RuntimeException("unreachable!");
         }
-        // TODO: things like i + 3
-        // children.size is 3 and not parens -> evalExpr binOp evalExpr
-        // children.size is 3 and parens -> evalExpr children[1]
         return value;
     }
 
@@ -122,7 +151,7 @@ public class Interpreter {
         // data type is double. always
         String identifier = getTokenString(children.get(0).getChildren().get(1));
         Node expr = children.get(2);
-        symbolTable.put(identifier, () -> evalExpr(expr));
+        symbolTable.put(identifier, () -> evalArithExpr(expr));
     }
 
     private void declVar(Node statement) {
@@ -139,7 +168,7 @@ public class Interpreter {
         List<Node> children = statement.getChildren();
         String identifier = getTokenString(children.get(0));
         Node expr = children.get(2);
-        symbolTable.put(identifier, () -> evalExpr(expr));
+        symbolTable.put(identifier, () -> evalArithExpr(expr));
     }
 
     private void declFunction(Node node) {
