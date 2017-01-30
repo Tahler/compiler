@@ -20,17 +20,17 @@ public class Main {
         String inputFilePath = args[0];
         Tokenizer tokenizer = new Tokenizer();
         List<Token> tokens = tokenizer.tokenize(new CharacterIterator(inputFilePath));
-        System.out.println(tokens);
-        System.out.println("------------------------------------------");
+//        System.out.println(tokens);
+//        System.out.println("------------------------------------------");
 
         Parser parser = new Parser();
         Node rootNode = parser.parse(tokens);
-        printTree(rootNode, 0);
-        System.out.println("------------------------------------------");
+//        printTree(rootNode, 0);
+//        System.out.println("------------------------------------------");
 
         Interpreter interpreter = new Interpreter();
         interpreter.run(rootNode);
-        System.out.println("------------------------------------------");
+//        System.out.println("------------------------------------------");
     }
 
     public static void printTree(Node node, int depth) {
