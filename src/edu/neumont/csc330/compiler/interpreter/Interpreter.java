@@ -4,49 +4,44 @@ import edu.neumont.csc330.compiler.parser.Node;
 import edu.neumont.csc330.compiler.parser.NodeType;
 import edu.neumont.csc330.compiler.parser.TokenNode;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class Interpreter {
-    // TODO: consider a backlog of functions? that way they can be called again? or evaluate main after everything?
-    private HashMap<String, Supplier<Double>> symbolTable;
+    private Map<String, Supplier<Double>> symbolTable;
+
+    private Node mainBlock;
+    private Map<String, List<String>> fnArgs;
+    private Map<String, Node> fnBlocks;
 
     public Interpreter() {
         this.symbolTable = new HashMap<>();
+        this.fnArgs = new HashMap<>();
+        this.fnBlocks = new HashMap<>();
     }
 
     public void run(Node node) {
-        NodeType type = node.getType();
-        List<Node> children = node.getChildren();
+        assert node.getType() == NodeType.PROGRAM;
 
-        switch (type) {
-            case PROGRAM:
-                // TODO:
-                // Find functions before executing. Create a list of functions with a list of parameter IDs
-                // When calling a function, symbolTable.put(paramList[i], arg)
-//                break;
-            case FUNCTION_LIST_WITH_MAIN:
-            case FUNCTION_LIST:
-                children.forEach(this::run);
-                break;
+        List<Node> children = node.getChildren().get(0).getChildren();
+        declFunctions(children);
+        execMain();
+    }
 
-            case MAIN_FUNCTION:
-                Node block = children.get(children.size() - 1);
-                execBlock(block);
-                break;
+    private void execMain() {
+        execBlock(this.mainBlock, null);
+    }
 
-            case FUNCTION:
-                // TODO: put a `() -> execBlock` in the symbol table
-                break;
+    private void declFunctions(List<Node> children) {
+        for (Node child : children) {
+            if (child.getType() == NodeType.FUNCTION) {
+                declFunction(child);
+            } else {
+                assert child.getType() == NodeType.MAIN_FUNCTION;
 
-//            case FUNCTION_CALL:
-//                // TODO: set the IDs of the parameters in the original func decl to the passed in vals
-//                execFunctionCall(node);
-//                break;
-//
-            default:
-                throw new RuntimeException("unreachable!");
+                List<Node> mainChildren = child.getChildren();
+                this.mainBlock = mainChildren.get(mainChildren.size() - 1);
+            }
         }
     }
 
@@ -57,67 +52,75 @@ public class Interpreter {
         System.out.println(evalArithExpr(expr));
     }
 
-    private void execBlock(Node block) {
+    private void execBlock(Node block, String returnName) {
         assert block.getType() == NodeType.BLOCK;
 
         Node statementList = block.getChildren().get(1);
         List<Node> statements = statementList.getChildren();
-        statements.forEach(this::execStatement);
-    }
 
-    private void execStatement(Node statement) {
-        assert statement.getType() == NodeType.STATEMENT;
+        for (Node statement : statements) {
+            assert statement.getType() == NodeType.STATEMENT;
 
-        Node subStmt = statement.getChildren().get(0);
-        if (subStmt.getType() == NodeType.LINE_STATEMENT) {
-            Node stmt = subStmt.getChildren().get(0).getChildren().get(0);
-            switch (stmt.getType()) {
-                case DECLARATION_ASSIGNMENT:
-                    declAssnVar(stmt);
-                    break;
-                case DECLARATION:
-                    declVar(stmt);
-                    break;
-                case ASSIGNMENT:
-                    assnVar(stmt);
-                    break;
-                case WRITELINE_CALL:
-                    execWriteLine(stmt);
-                    break;
-                default:
-                    System.out.println(stmt.getType());
-                    throw new RuntimeException("unimpl!");
-            }
-        } else {
-            assert subStmt.getType() == NodeType.BLOCK_STATEMENT;
-
-            Node stmt = subStmt.getChildren().get(0);
-            switch (stmt.getType()) {
-                case IF_STATEMENT: {
-                    execIf(stmt);
-                    break;
+            Node subStmt = statement.getChildren().get(0);
+            if (subStmt.getType() == NodeType.LINE_STATEMENT) {
+                Node stmt = subStmt.getChildren().get(0).getChildren().get(0);
+                switch (stmt.getType()) {
+                    case DECLARATION_ASSIGNMENT:
+                        declAssnVar(stmt);
+                        break;
+                    case DECLARATION:
+                        declVar(stmt);
+                        break;
+                    case ASSIGNMENT:
+                        assnVar(stmt);
+                        break;
+                    case WRITELINE_CALL:
+                        execWriteLine(stmt);
+                        break;
+                    case RETURN_STATEMENT:
+                        Node expr = stmt.getChildren().get(1);
+                        double retVal = evalArithExpr(expr);
+                        this.symbolTable.put(returnName, () -> retVal);
+                        break;
+                    case FUNCTION_CALL:
+                        execFunctionCall(stmt);
+                        break;
+                    default:
+                        System.out.println(stmt.getType());
+                        throw new RuntimeException("unimpl!");
                 }
-                case WHILE_STATEMENT: {
-                    Node expr = stmt.getChildren().get(2);
-                    Node block = stmt.getChildren().get(4);
-                    while (evalBoolExpr(expr)) {
-                        execBlock(block);
+            } else {
+                assert subStmt.getType() == NodeType.BLOCK_STATEMENT;
+
+                Node stmt = subStmt.getChildren().get(0);
+                switch (stmt.getType()) {
+                    case IF_STATEMENT: {
+                        execIf(stmt);
+                        break;
                     }
-                    break;
-                }
-                case FOR_STATEMENT: {
-                    Node expr = stmt.getChildren().get(3);
-                    Node post = stmt.getChildren().get(5);
-                    Node block = stmt.getChildren().get(7);
-                    for (stmt.getChildren().get(2).getChildren().forEach(this::execStatement);
-                         evalBoolExpr(expr);
-                         execPost(post)) {
-                        execBlock(block);
+                    case WHILE_STATEMENT: {
+                        Node expr = stmt.getChildren().get(2);
+                        Node whileBlock = stmt.getChildren().get(4);
+                        while (evalBoolExpr(expr)) {
+                            execBlock(whileBlock, null);
+                        }
+                        break;
                     }
-                    break;
+                    case FOR_STATEMENT: {
+                        Node initStmt = stmt.getChildren().get(2).getChildren().get(0).getChildren().get(0).getChildren().get(0).getChildren().get(0);
+                        Node expr = stmt.getChildren().get(3);
+                        Node post = stmt.getChildren().get(5);
+                        Node forBlock = stmt.getChildren().get(7);
+                        for (declAssnVar(initStmt);
+                             evalBoolExpr(expr);
+                             execPost(post)) {
+                            execBlock(forBlock, null);
+                        }
+                        break;
+                    }
+                    default:
+                        throw new RuntimeException("unreachable!");
                 }
-                default:
-                    throw new RuntimeException("unreachable!");
             }
         }
     }
@@ -131,10 +134,6 @@ public class Interpreter {
         symbolTable.put(id, () -> inc);
     }
 
-    private void execLineStatementBody(Node subStmt) {
-
-    }
-
     private void execIf(Node ifStatement) {
         assert ifStatement.getType() == NodeType.IF_STATEMENT;
 
@@ -143,12 +142,12 @@ public class Interpreter {
         Node expr = ifSeg.getChildren().get(2);
         Node ifBlock = ifSeg.getChildren().get(4);
         if (evalBoolExpr(expr)) {
-            execBlock(ifBlock);
+            execBlock(ifBlock, null);
         } else {
             if (segments.size() == 2) {
                 Node elseSeg = segments.get(1);
                 Node elseBlock = elseSeg.getChildren().get(1);
-                execBlock(elseBlock);
+                execBlock(elseBlock, null);
             }
         }
     }
@@ -207,12 +206,18 @@ public class Interpreter {
             if (part.getType() == NodeType.LITERAL) {
                 String literal = getTokenString(part.getChildren().get(0));
                 value = Double.parseDouble(literal);
-            } else {
-                assert part.getType() == NodeType.IDENTIFIER;
-
+            } else if (part.getType() == NodeType.IDENTIFIER) {
                 String id = getTokenString(part);
                 value = symbolTable.get(id).get();
+            } else {
+                assert part.getType() == NodeType.FUNCTION_CALL;
+                value = execFunctionCall(part);
             }
+        } else if (numParts == 2) {
+            Node unaryOp = parts.get(0);
+            Node right = parts.get(1);
+            // Only unary op is '-'
+            value = -evalArithExpr(right);
         } else if (numParts == 3) {
             Node inner = parts.get(1);
             if (parts.get(0).getType() == NodeType.OPEN_PARENTHESIS) {
@@ -297,27 +302,43 @@ public class Interpreter {
     private void declFunction(Node node) {
         List<Node> children = node.getChildren();
 
-        NodeType returnType = children.get(0).getChildren().get(0).getType();
-
-        switch (returnType) {
-            case VOID:
-                break;
-            case DOUBLE:
-                break;
-        }
-        String identifier = getTokenString(children.get(1));
-        // skip open paren
+//        NodeType returnType = children.get(0).getChildren().get(0).getType();
+//
+//        switch (returnType) {
+//            case VOID:
+//                break;
+//            case DOUBLE:
+//                break;
+//        }
+        String id = getTokenString(children.get(1));
         Node parameter = children.get(3);
-        // skip close paren
-        Node block = children.get(5);
+        List<String> argsList = parameter.getChildren().size() == 0
+                ? Collections.emptyList()
+                : Collections.singletonList(getTokenString(parameter.getChildren().get(0).getChildren().get(1)));
+        this.fnArgs.put(id, argsList);
 
-//        symbolTable.put(identifier, new Symbol(identifier));
+        Node block = children.get(5);
+        this.fnBlocks.put(id, block);
     }
 
-    private void execFunctionCall(Node node) {
+    private double execFunctionCall(Node node) {
         List<Node> children = node.getChildren();
 
-//        this.symbolTable.get()
+        // Set the arg names,
+        String id = getTokenString(children.get(0));
+        List<Node> args = children.get(2).getChildren();
+        List<String> params = this.fnArgs.get(id);
+        for (int i = 0; i < args.size(); i++) {
+            String paramName = params.get(i);
+            Node argExpr = args.get(i);
+            double argVal = evalArithExpr(argExpr);
+            this.symbolTable.put(paramName, () -> argVal);
+        }
+        Node block = this.fnBlocks.get(id);
+        execBlock(block, id);
+        return this.symbolTable.containsKey(id)
+                ? this.symbolTable.get(id).get()
+                : Double.MAX_VALUE;
     }
 
     private static String getTokenString(Node node) {
@@ -326,7 +347,3 @@ public class Interpreter {
         return ((TokenNode) node).getToken().getValue();
     }
 }
-
-// ExpressionNode : Node
-//  getValue()
-//      recursively flip through children and call getValue

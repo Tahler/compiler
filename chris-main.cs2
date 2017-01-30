@@ -1,10 +1,5 @@
 void Main(string[] args)
 {
-    RunSqrt();
-}
-
-private void RunSqrt()
-{
     double A, B;
     double E = 0.01;
     for (int i = 0; i <= 100; i++)
@@ -27,7 +22,7 @@ private void RunSqrt()
     }
 }
 
-public double Abs(double input)
+double Abs(double input)
 {
     double toReturn = input;
     if (input < 0)
